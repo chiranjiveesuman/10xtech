@@ -1,0 +1,41 @@
+{#
+/**
+ * @file
+ * Alternative theme implementation to display the style guide page with centered layout.
+ *
+ * Available variables:
+ * - person: A single person object for demonstration.
+ * - persons: An array of person objects for the grid.
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-10">
+  <h1 class="text-3xl font-bold text-gray-900 mb-2">Style Guide</h1>
+  <h2 class="text-xl font-semibold text-gray-800 mb-4">Person Card</h2>
+
+  {% include '@style_guide/person-card.html.twig' with {
+    'name': person.name,
+    'position': person.position,
+    'image': person.image,
+    'email': person.email,
+    'phone': person.phone,
+    'admin': person.admin
+  } %}
+
+  <div class="mt-16 w-full max-w-7xl">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Person Cards Grid</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      {% for person in persons %}
+        {% include '@style_guide/person-card.html.twig' with {
+          'name': person.name,
+          'position': person.position,
+          'image': person.image,
+          'email': person.email,
+          'phone': person.phone,
+          'admin': person.admin
+        } %}
+      {% endfor %}
+    </div>
+  </div>
+</div>

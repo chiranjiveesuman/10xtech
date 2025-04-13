@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * Contains style_guide.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function style_guide_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.style_guide':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides a style guide page with Tailwind CSS components.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function style_guide_theme() {
+  return [
+    'style_guide' => [
+      'variables' => [
+        'person' => NULL,
+        'persons' => NULL,
+      ],
+      'template' => 'style-guide',
+    ],
+    'style_guide_centered' => [
+      'variables' => [
+        'person' => NULL,
+        'persons' => NULL,
+      ],
+      'template' => 'style-guide-centered',
+    ],
+    'person_card' => [
+      'variables' => [
+        'name' => NULL,
+        'position' => NULL,
+        'image' => NULL,
+        'email' => NULL,
+        'phone' => NULL,
+        'admin' => FALSE,
+      ],
+      'template' => 'person-card',
+    ],
+  ];
+}

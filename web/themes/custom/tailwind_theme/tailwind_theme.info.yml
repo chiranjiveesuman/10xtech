@@ -1,0 +1,11 @@
+name: Tailwind Theme
+type: theme
+description: 'A custom theme using Tailwind CSS for the style guide.'
+core_version_requirement: ^10
+base theme: stable9
+libraries:
+  - tailwind_theme/global-styling
+regions:
+  header: Header
+  content: Content
+  footer: Footer

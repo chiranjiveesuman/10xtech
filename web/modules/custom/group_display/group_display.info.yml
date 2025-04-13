@@ -1,0 +1,7 @@
+name: Group Display
+type: module
+description: 'Provides custom display for Group content type.'
+core_version_requirement: ^10
+package: Custom
+dependencies:
+  - drupal:og
