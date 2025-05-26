@@ -1,5 +1,0 @@
-name: Style Guide
-type: module
-description: 'Provides a style guide page with Tailwind CSS components.'
-core_version_requirement: ^10
-package: Custom

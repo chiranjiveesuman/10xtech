@@ -1,0 +1,36 @@
+{#
+/**
+ * @file
+ * Default template for the document approval application page.
+ *
+ * Available variables:
+ * - submission: The document submission entity.
+ * - documents: Table of documents with their statuses.
+ * - actions: Action buttons for the submission.
+ */
+#}
+<div class="document-approval-application">
+  <div class="application-header">
+    <h2>{% trans %}Document Submission Application{% endtrans %}</h2>
+    {% if submission %}
+      <div class="application-status">
+        {% trans %}Current Status:{% endtrans %} 
+        <span class="status-badge status-{{ submission.status }}">
+          {{ submission.status|capitalize }}
+        </span>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if documents %}
+    <div class="documents-section">
+      {{ documents }}
+    </div>
+  {% endif %}
+
+  {% if actions %}
+    <div class="application-actions">
+      {{ actions }}
+    </div>
+  {% endif %}
+</div>

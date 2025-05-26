@@ -1,4 +1,0 @@
-services:
-  plugin.manager.entity_view_builder:
-    class: Drupal\group_display\Plugin\EntityViewBuilderManager
-    parent: default_plugin_manager

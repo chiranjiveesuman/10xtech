@@ -1,0 +1,4 @@
+services:
+  document_approval.document_service:
+    class: Drupal\document_approval\Service\DocumentApprovalService
+    arguments: ['@entity_type.manager', '@current_user', '@messenger']

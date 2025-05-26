@@ -1,0 +1,8 @@
+name: Document Approval System
+type: module
+description: 'Provides document upload and approval system functionality'
+package: Custom
+core_version_requirement: ^10
+dependencies:
+  - drupal:file
+  - drupal:user

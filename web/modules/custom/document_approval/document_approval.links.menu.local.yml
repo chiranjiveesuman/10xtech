@@ -1,0 +1,9 @@
+document_approval.application:
+  title: 'Submit Documents'
+  route_name: document_approval.application
+  menu_name: account
+  weight: -100
+  options:
+    attributes:
+      class:
+        - document-submission-link

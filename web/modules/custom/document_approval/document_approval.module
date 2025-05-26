@@ -1,0 +1,74 @@
+<?php
+
+/**
+ * @file
+ * Contains document_approval.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function document_approval_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.document_approval':
+      return '<p>' . t('Allows users to submit documents for approval and administrators to review them.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function document_approval_theme() {
+  return [
+    'document_submission' => [
+      'variables' => [
+        'submission' => NULL,
+      ],
+    ],
+    'document_approval_application' => [
+      'variables' => [
+        'form' => NULL,
+        'submission' => NULL,
+      ],
+      'template' => 'document-approval-application',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function document_approval_entity_type_alter(array &$entity_types) {
+  if (isset($entity_types['document_submission'])) {
+    $entity_types['document_submission']->set('admin_permission', 'administer document approval');
+  }
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function document_approval_user_login($account) {
+  // Check if user has permission to submit documents
+  if ($account->hasPermission('submit documents')) {
+    // Redirect to application page after login
+    $response = new \Symfony\Component\HttpFoundation\RedirectResponse(
+      \Drupal\Core\Url::fromRoute('document_approval.application')->toString()
+    );
+    $response->send();
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function document_approval_preprocess_page(&$variables) {
+  $route_match = \Drupal::routeMatch();
+  $route_name = $route_match->getRouteName();
+
+  // Add custom CSS to document approval pages
+  if (strpos($route_name, 'document_approval') === 0) {
+    $variables['#attached']['library'][] = 'document_approval/application';
+  }
+}

@@ -1,0 +1,74 @@
+document_approval.admin_settings:
+  path: '/admin/config/document-approval/settings'
+  defaults:
+    _form: '\Drupal\document_approval\Form\AdminSettingsForm'
+    _title: 'Document Approval Settings'
+  requirements:
+    _permission: 'administer document approval'
+
+document_approval.application:
+  path: '/application'
+  defaults:
+    _controller: '\Drupal\document_approval\Controller\DocumentApprovalController::applicationPage'
+    _title: 'Application Registration'
+  requirements:
+    _role: 'authenticated'
+    _custom_access: '\Drupal\document_approval\Controller\DocumentApprovalController::access'
+  options:
+    no_cache: TRUE
+    _maintenance_access: TRUE
+
+document_approval.user_submission:
+  path: '/document-submission'
+  defaults:
+    _form: '\Drupal\document_approval\Form\UserDocumentSubmissionForm'
+    _title: 'Document Submission'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+document_approval.admin_submissions:
+  path: '/admin/document-submissions'
+  defaults:
+    _controller: '\Drupal\document_approval\Controller\DocumentApprovalController::submissionsList'
+    _title: 'Document Submissions'
+  requirements:
+    _permission: 'administer document approval'
+
+document_approval.submission_review:
+  path: '/admin/document-submissions/{submission_id}'
+  defaults:
+    _form: '\Drupal\document_approval\Form\AdminApprovalForm'
+    _title: 'Review Submission'
+  requirements:
+    _permission: 'administer document approval'
+
+document_approval.user_status:
+  path: '/application-status'
+  defaults:
+    _controller: '\Drupal\document_approval\Controller\UserStatusController::status'
+    _title: 'Application Status'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+document_approval.update_document:
+  path: '/application/document/{doc_id}/update'
+  defaults:
+    _form: '\Drupal\document_approval\Form\UpdateDocumentForm'
+    _title: 'Update Document'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+document_approval.delete_document:
+  path: '/application/document/{doc_id}/delete'
+  defaults:
+    _form: '\Drupal\document_approval\Form\DeleteDocumentForm'
+    _title: 'Delete Document'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+document_approval.user_redirect:
+  path: '/user/login'
+  defaults:
+    _controller: '\Drupal\document_approval\Controller\DocumentApprovalController::userRedirect'
+  requirements:
+    _user_is_logged_in: 'TRUE'

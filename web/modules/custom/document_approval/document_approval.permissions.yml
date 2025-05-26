@@ -1,0 +1,8 @@
+administer document approval:
+  title: 'Administer document approval'
+  description: 'Configure document approval settings and review submissions.'
+  restrict access: true
+
+submit documents:
+  title: 'Submit documents'
+  description: 'Submit documents for approval.'

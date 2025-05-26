@@ -1,0 +1,125 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Document Approval module.
+ */
+
+use Drupal\Core\Field\BaseFieldDefinition;
+
+/**
+ * Implements hook_schema().
+ */
+function document_approval_schema() {
+  $schema['document_submission'] = [
+    'description' => 'Stores document submissions.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique submission ID.',
+      ],
+      'uuid' => [
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'Unique identifier for this entity.',
+      ],
+      'user_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The ID of the user who created the submission.',
+      ],
+      'status' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'pending',
+        'description' => 'The status of the submission.',
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The Unix timestamp when the submission was created.',
+      ],
+      'changed' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The Unix timestamp when the submission was most recently updated.',
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'user_id' => ['user_id'],
+      'status' => ['status'],
+    ],
+    'foreign keys' => [
+      'user_id' => [
+        'table' => 'users',
+        'columns' => ['user_id' => 'uid'],
+      ],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function document_approval_install() {
+  // Install the entity type and its fields
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+
+  try {
+    // Install the entity type
+    $entity_type = \Drupal::entityTypeManager()->getDefinition('document_submission');
+    $entity_definition_update_manager->installEntityType($entity_type);
+
+    \Drupal::logger('document_approval')->info('Document Approval module installed successfully.');
+  } catch (\Exception $e) {
+    \Drupal::logger('document_approval')->error('Error installing entity type: @error', ['@error' => $e->getMessage()]);
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function document_approval_uninstall() {
+  // Clean up entity type on uninstall
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+
+  try {
+    $entity_type = $entity_definition_update_manager->getEntityType('document_submission');
+    if ($entity_type) {
+      $entity_definition_update_manager->uninstallEntityType($entity_type);
+    }
+  } catch (\Exception $e) {
+    \Drupal::logger('document_approval')->error('Error uninstalling entity type: @error', ['@error' => $e->getMessage()]);
+  }
+}
+
+/**
+ * Update hook to fix entity installation issues.
+ */
+function document_approval_update_8001() {
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+
+  try {
+    // Check if entity type exists
+    $entity_type = $entity_definition_update_manager->getEntityType('document_submission');
+    if (!$entity_type) {
+      // Install the entity type
+      $entity_type = \Drupal::entityTypeManager()->getDefinition('document_submission');
+      $entity_definition_update_manager->installEntityType($entity_type);
+      \Drupal::logger('document_approval')->info('Document submission entity type installed via update hook.');
+    }
+  } catch (\Exception $e) {
+    \Drupal::logger('document_approval')->error('Error in update 8001: @error', ['@error' => $e->getMessage()]);
+  }
+}

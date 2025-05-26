@@ -1,0 +1,20 @@
+document_approval.admin_settings:
+  title: 'Document Approval Settings'
+  description: 'Configure document approval system settings'
+  parent: system.admin_config
+  route_name: document_approval.admin_settings
+  weight: 100
+
+document_approval.admin_submissions:
+  title: 'Document Submissions'
+  description: 'Review document submissions'
+  parent: system.admin
+  route_name: document_approval.admin_submissions
+  weight: 100
+
+document_approval.submit:
+  title: 'Submit Documents'
+  description: 'Submit documents for approval'
+  route_name: document_approval.application
+  menu_name: main
+  weight: 5

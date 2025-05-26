@@ -1,0 +1,6 @@
+doc1_label: 'Personal Identification'
+doc2_label: 'Proof of Address'
+doc3_label: 'Income Statement'
+doc4_label: 'Additional Document (Optional)'
+allowed_extensions: 'pdf jpg jpeg'
+max_filesize: '10 MB'

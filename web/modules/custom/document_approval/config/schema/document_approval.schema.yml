@@ -1,0 +1,22 @@
+document_approval.settings:
+  type: config_object
+  label: 'Document Approval Settings'
+  mapping:
+    doc1_label:
+      type: string
+      label: 'Document 1 Label'
+    doc2_label:
+      type: string
+      label: 'Document 2 Label'
+    doc3_label:
+      type: string
+      label: 'Document 3 Label'
+    doc4_label:
+      type: string
+      label: 'Document 4 Label'
+    allowed_extensions:
+      type: string
+      label: 'Allowed File Extensions'
+    max_filesize:
+      type: string
+      label: 'Maximum File Size'
