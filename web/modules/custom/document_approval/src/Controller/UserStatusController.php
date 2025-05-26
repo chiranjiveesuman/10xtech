@@ -50,7 +50,7 @@ class UserStatusController extends ControllerBase {
       return [
         '#type' => 'markup',
         '#markup' => $this->t('No document submissions found. <a href="@url">Submit documents</a>.', [
-          '@url' => \Drupal\Core\Url::fromRoute('document_approval.user_submission')->toString(),
+          '@url' => \Drupal\Core\Url::fromRoute('document_approval.application')->toString(),
         ]),
         '#cache' => [
           'max-age' => 0,
@@ -123,7 +123,7 @@ class UserStatusController extends ControllerBase {
       $build['resubmit'] = [
         '#type' => 'link',
         '#title' => $this->t('Update Documents'),
-        '#url' => \Drupal\Core\Url::fromRoute('document_approval.user_submission'),
+        '#url' => \Drupal\Core\Url::fromRoute('document_approval.application'),
         '#attributes' => [
           'class' => ['button', 'button--primary'],
         ],

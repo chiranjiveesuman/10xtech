@@ -18,26 +18,6 @@ function document_approval_help($route_name, RouteMatchInterface $route_match) {
 }
 
 /**
- * Implements hook_theme().
- */
-function document_approval_theme() {
-  return [
-    'document_submission' => [
-      'variables' => [
-        'submission' => NULL,
-      ],
-    ],
-    'document_approval_application' => [
-      'variables' => [
-        'form' => NULL,
-        'submission' => NULL,
-      ],
-      'template' => 'document-approval-application',
-    ],
-  ];
-}
-
-/**
  * Implements hook_entity_type_alter().
  */
 function document_approval_entity_type_alter(array &$entity_types) {
