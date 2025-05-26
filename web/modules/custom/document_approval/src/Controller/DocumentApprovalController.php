@@ -133,6 +133,15 @@ class DocumentApprovalController extends ControllerBase {
       '#empty' => $this->t('No submissions found.'),
     ];
 
+    // Add cache tags for proper invalidation
+    $build['#cache'] = [
+      'tags' => [
+        'document_submission_list',
+        'document_approval_admin',
+      ],
+      'contexts' => ['user.permissions'],
+    ];
+
     return $build;
   }
 

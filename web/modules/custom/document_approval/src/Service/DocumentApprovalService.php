@@ -96,23 +96,46 @@ class DocumentApprovalService extends ControllerBase {
       $submission->set($document_field . '_status', $status);
       $submission->save();
 
-      // Check if all required documents are approved
-      $all_approved = TRUE;
+      // Check if all mandatory documents (doc1, doc2, doc3) are approved
+      $mandatory_approved_count = 0;
+      $has_mandatory_files = TRUE;
+      $any_mandatory_rejected = FALSE;
+
       foreach (['doc1', 'doc2', 'doc3'] as $doc) {
-        $doc_status = $submission->get($doc . '_status')->value;
-        if ($doc_status !== 'approved') {
-          $all_approved = FALSE;
+        $file = $submission->get($doc)->entity;
+        if (!$file) {
+          $has_mandatory_files = FALSE;
           break;
+        }
+
+        $doc_status = $submission->get($doc . '_status')->value;
+        if ($doc_status === 'approved') {
+          $mandatory_approved_count++;
+        } elseif ($doc_status === 'rejected') {
+          $any_mandatory_rejected = TRUE;
         }
       }
 
-      if ($all_approved) {
-        $submission->setStatus('approved');
-      } elseif ($status === 'rejected') {
+      // Update overall submission status based on mandatory documents
+      if ($any_mandatory_rejected) {
         $submission->setStatus('rejected');
+      } elseif ($has_mandatory_files && $mandatory_approved_count === 3) {
+        // All 3 mandatory documents are approved
+        $submission->setStatus('approved');
+      } else {
+        $submission->setStatus('pending');
       }
 
       $submission->save();
+
+      // Invalidate cache for the user's status page and admin views
+      $user = $submission->getUser();
+      if ($user) {
+        $this->invalidateUserStatusCache($user->id(), $submission->id());
+        // Also invalidate admin submission list cache
+        $this->invalidateAdminCache();
+      }
+
       return TRUE;
     }
     catch (\Exception $e) {
@@ -195,6 +218,41 @@ class DocumentApprovalService extends ControllerBase {
       ]));
       return NULL;
     }
+  }
+
+  /**
+   * Invalidates cache for a user's status page.
+   *
+   * @param int $user_id
+   *   The user ID.
+   * @param int $submission_id
+   *   The submission ID.
+   */
+  public function invalidateUserStatusCache($user_id, $submission_id) {
+    $cache_tags = [
+      'document_submission:' . $submission_id,
+      'user:' . $user_id . ':document_status',
+    ];
+    \Drupal::service('cache_tags.invalidator')->invalidateTags($cache_tags);
+  }
+
+  /**
+   * Invalidates cache for admin views.
+   */
+  public function invalidateAdminCache() {
+    // Clear entity cache first
+    \Drupal::entityTypeManager()->getStorage('document_submission')->resetCache();
+    \Drupal::service('cache.entity')->deleteAll();
+
+    $cache_tags = [
+      'document_submission_list',
+      'document_approval_admin',
+      'rendered', // Clear all rendered cache
+    ];
+    \Drupal::service('cache_tags.invalidator')->invalidateTags($cache_tags);
+
+    // Also clear the render cache to ensure admin sees updated files
+    \Drupal::service('cache.render')->deleteAll();
   }
 
 }

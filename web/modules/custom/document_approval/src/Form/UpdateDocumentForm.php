@@ -60,7 +60,7 @@ class UpdateDocumentForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, $doc_id = NULL, $submission_id = NULL) {
     $submission = $this->documentService->getSubmission($submission_id);
-    
+
     if (!$submission || $submission->getUser()->id() !== $this->currentUser()->id()) {
       $this->messenger()->addError($this->t('Invalid submission.'));
       return $form;
@@ -179,7 +179,37 @@ class UpdateDocumentForm extends FormBase {
           // Update with new file
           $submission->set($doc_id, $file_entity->id());
           $submission->set("{$doc_id}_status", 'pending');
+
+          // Reset overall status to pending when any document is updated
+          $submission->setStatus('pending');
           $submission->save();
+
+          // Invalidate all caches to ensure admin sees the updated file immediately
+          $user = $submission->getUser();
+          if ($user) {
+            // Clear entity cache
+            \Drupal::entityTypeManager()->getStorage('document_submission')->resetCache();
+            \Drupal::service('cache.entity')->deleteAll();
+
+            $cache_tags = [
+              'document_submission:' . $submission->id(),
+              'user:' . $user->id() . ':document_status',
+              'document_submission_list',
+              'document_approval_admin',
+              'rendered', // Clear all rendered cache
+            ];
+            \Drupal::service('cache_tags.invalidator')->invalidateTags($cache_tags);
+
+            // Also clear the cache for the specific admin review page
+            \Drupal::service('cache.render')->deleteAll();
+          }
+
+          // Log the file update for debugging
+          \Drupal::logger('document_approval')->info('File updated for @doc in submission @id. New file: @filename', [
+            '@doc' => $doc_id,
+            '@id' => $submission->id(),
+            '@filename' => $file_entity->getFilename(),
+          ]);
 
           $this->messenger()->addMessage($this->t('Document updated successfully.'));
         }

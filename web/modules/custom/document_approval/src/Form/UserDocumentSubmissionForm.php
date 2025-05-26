@@ -5,6 +5,7 @@ namespace Drupal\document_approval\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\StringTranslation\ByteSizeMarkup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\document_approval\Service\DocumentApprovalService;
 use Drupal\file\Entity\File;
@@ -130,20 +131,35 @@ class UserDocumentSubmissionForm extends FormBase {
       // Set default value if file exists
       if ($current_file) {
         $form['documents']["doc{$i}"]['#default_value'] = [$current_file->id()];
+
+        // If document is approved, disable the remove button and make field read-only
+        if ($doc_status === 'approved') {
+          $form['documents']["doc{$i}"]['#disabled'] = TRUE;
+          $form['documents']["doc{$i}"]['#description'] = $this->t('This document has been approved and cannot be modified.');
+          $form['documents']["doc{$i}"]['#process'][] = [$this, 'hideRemoveButton'];
+        }
       }
 
       // Show current file status if exists
       if ($current_file) {
         $status_class = $doc_status === 'approved' ? 'status-approved' : ($doc_status === 'rejected' ? 'status-rejected' : 'status-pending');
+
+        // Generate file URL for viewing
+        $file_url = \Drupal::service('file_url_generator')->generateAbsoluteString($current_file->getFileUri());
+
         $form['documents']["doc{$i}_current"] = [
           '#type' => 'item',
           '#title' => $this->t('Current File'),
-          '#markup' => $this->t('File: @name<br>Status: <span class="@class">@status</span>', [
+          '#markup' => $this->t('File: <a href="@url" target="_blank">@name</a> <span class="file-size">(@size)</span><br>Status: <span class="@class">@status</span>', [
+            '@url' => $file_url,
             '@name' => $current_file->getFilename(),
+            '@size' => ByteSizeMarkup::create($current_file->getSize()),
             '@status' => ucfirst($doc_status),
             '@class' => $status_class,
           ]),
         ];
+
+
 
         // Show comments if rejected
         if ($doc_status === 'rejected') {
@@ -159,16 +175,55 @@ class UserDocumentSubmissionForm extends FormBase {
       }
     }
 
+    // Check if all mandatory documents are approved
+    $all_mandatory_approved = TRUE;
+    $has_modifiable_documents = FALSE;
+
+    if ($submission) {
+      for ($i = 1; $i <= 3; $i++) { // Check mandatory documents (1, 2, 3)
+        $current_file = $submission->get("doc{$i}")->entity;
+        $doc_status = $submission->get("doc{$i}_status")->value ?: 'pending';
+
+        if (!$current_file || $doc_status !== 'approved') {
+          $all_mandatory_approved = FALSE;
+        }
+
+        // Check if there are any documents that can be modified (pending/rejected)
+        if ($doc_status === 'pending' || $doc_status === 'rejected') {
+          $has_modifiable_documents = TRUE;
+        }
+      }
+
+      // Also check optional document (doc4) for modifiable status
+      $doc4_file = $submission->get("doc4")->entity;
+      $doc4_status = $submission->get("doc4_status")->value ?: 'pending';
+      if ($doc4_file && ($doc4_status === 'pending' || $doc4_status === 'rejected')) {
+        $has_modifiable_documents = TRUE;
+      }
+    }
+
     $form['actions'] = [
       '#type' => 'actions',
       '#weight' => 10,
     ];
 
-    $form['actions']['submit'] = [
-      '#type' => 'submit',
-      '#value' => $submission ? $this->t('Update Documents') : $this->t('Submit Documents'),
-      '#button_type' => 'primary',
-    ];
+    // Only show submit button if there are documents that can be modified or if no submission exists
+    if (!$submission || $has_modifiable_documents || !$all_mandatory_approved) {
+      $form['actions']['submit'] = [
+        '#type' => 'submit',
+        '#value' => $submission ? $this->t('Update Documents') : $this->t('Submit Documents'),
+        '#button_type' => 'primary',
+      ];
+    } else {
+      // Show completion message when all mandatory documents are approved
+      $form['completion_message'] = [
+        '#type' => 'item',
+        '#markup' => '<div class="messages messages--status">' .
+                     $this->t('Congratulations! All your mandatory documents have been approved. No further action is required.') .
+                     '</div>',
+        '#weight' => 15,
+      ];
+    }
 
     return $form;
   }
@@ -226,6 +281,15 @@ class UserDocumentSubmissionForm extends FormBase {
         }
       }
 
+      // Check if document is approved and user is trying to modify it
+      if ($submission && $new_file) {
+        $doc_status = $submission->get("doc{$i}_status")->value ?: 'pending';
+        if ($doc_status === 'approved') {
+          $form_state->setError($form['documents']["doc{$i}"], $this->t('Document @num has been approved and cannot be modified.', ['@num' => $i]));
+          continue;
+        }
+      }
+
       // Track if we have new files
       if ($new_file) {
         $has_new_files = true;
@@ -259,6 +323,27 @@ class UserDocumentSubmissionForm extends FormBase {
     $submission = $this->documentService->getUserCurrentSubmission($user->id());
     $files = [];
 
+    // Check if all mandatory documents are already approved
+    if ($submission) {
+      $all_mandatory_approved = TRUE;
+      for ($i = 1; $i <= 3; $i++) {
+        $current_file = $submission->get("doc{$i}")->entity;
+        $doc_status = $submission->get("doc{$i}_status")->value ?: 'pending';
+
+        if (!$current_file || $doc_status !== 'approved') {
+          $all_mandatory_approved = FALSE;
+          break;
+        }
+      }
+
+      // If all mandatory documents are approved, don't allow submission
+      if ($all_mandatory_approved) {
+        $this->messenger()->addMessage($this->t('All your mandatory documents are already approved. No changes are allowed.'));
+        $form_state->setRedirect('document_approval.user_status');
+        return;
+      }
+    }
+
     // Debug: Log that we're in submitForm
     \Drupal::logger('document_approval')->info('SUBMIT FORM - Starting submission process for user @uid', [
       '@uid' => $user->id()
@@ -277,6 +362,15 @@ class UserDocumentSubmissionForm extends FormBase {
         ]);
 
         if ($new_file) {
+          // Check if document is approved - don't allow modification
+          if ($submission) {
+            $doc_status = $submission->get("doc{$i}_status")->value ?: 'pending';
+            if ($doc_status === 'approved') {
+              \Drupal::logger('document_approval')->warning('SUBMIT - Doc @num: Attempted to modify approved document', ['@num' => $i]);
+              continue; // Skip processing this document
+            }
+          }
+
           // Load the file entity and make it permanent
           $file_entity = File::load($new_file);
           if ($file_entity) {
@@ -321,6 +415,29 @@ class UserDocumentSubmissionForm extends FormBase {
         }
 
         $submission->save();
+
+        // Invalidate all caches to ensure admin sees the updated files immediately
+        if (!empty($files)) {
+          $user = $submission->getUser();
+          if ($user) {
+            // Clear entity cache
+            \Drupal::entityTypeManager()->getStorage('document_submission')->resetCache();
+            \Drupal::service('cache.entity')->deleteAll();
+
+            $cache_tags = [
+              'document_submission:' . $submission->id(),
+              'user:' . $user->id() . ':document_status',
+              'document_submission_list',
+              'document_approval_admin',
+              'rendered', // Clear all rendered cache
+            ];
+            \Drupal::service('cache_tags.invalidator')->invalidateTags($cache_tags);
+
+            // Also clear the cache for the specific admin review page
+            \Drupal::service('cache.render')->deleteAll();
+          }
+        }
+
         \Drupal::logger('document_approval')->info('SUBMIT - Submission updated successfully');
         $this->messenger()->addMessage($this->t('Documents updated successfully.'));
       } else {
@@ -346,6 +463,33 @@ class UserDocumentSubmissionForm extends FormBase {
       \Drupal::logger('document_approval')->error('Error in form submission: @error', ['@error' => $e->getMessage()]);
       $this->messenger()->addError($this->t('An error occurred while processing your submission. Please try again.'));
     }
+  }
+
+  /**
+   * Process callback to hide the remove button for approved documents.
+   *
+   * @param array $element
+   *   The form element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param array $complete_form
+   *   The complete form.
+   *
+   * @return array
+   *   The processed element.
+   */
+  public function hideRemoveButton(array $element, FormStateInterface $form_state, array &$complete_form) {
+    // Hide the remove button for approved documents
+    if (isset($element['remove_button'])) {
+      $element['remove_button']['#access'] = FALSE;
+    }
+
+    // Also hide the upload button since the field is disabled
+    if (isset($element['upload_button'])) {
+      $element['upload_button']['#access'] = FALSE;
+    }
+
+    return $element;
   }
 
   /**

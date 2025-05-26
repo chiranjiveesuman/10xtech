@@ -49,6 +49,8 @@ document_approval.user_status:
     _title: 'Application Status'
   requirements:
     _user_is_logged_in: 'TRUE'
+  options:
+    no_cache: TRUE
 
 document_approval.update_document:
   path: '/application/document/{doc_id}/update'

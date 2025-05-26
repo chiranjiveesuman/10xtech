@@ -178,15 +178,189 @@
 }
 
 /* Admin preview styling */
+.admin-document-preview {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  margin: 1rem 0;
+}
+
 .admin-document-preview iframe {
   border: 1px solid #ddd;
   border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background-color: white;
 }
 
 .admin-document-preview img {
   border: 1px solid #ddd;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.admin-document-preview img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* PDF preview container */
+.pdf-preview-container {
+  background-color: white;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Image preview container */
+.image-preview-container {
+  background-color: white;
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+/* File preview container for unsupported types */
+.file-preview-container {
+  background-color: white;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+/* Action buttons for admin preview */
+.pdf-actions, .image-actions {
+  background-color: white;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border-top: 1px solid #dee2e6;
+}
+
+.admin-document-preview .button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin: 0 0.25rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.admin-document-preview .button--primary {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.admin-document-preview .button--primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+}
+
+.admin-document-preview .button:not(.button--primary) {
+  background-color: #6c757d;
+  color: white;
+  border-color: #6c757d;
+}
+
+.admin-document-preview .button:not(.button--primary):hover {
+  background-color: #545b62;
+  border-color: #545b62;
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(108,117,125,0.3);
+}
+
+/* Admin form approved status styling */
+.status-approved strong {
+  color: #5cb85c;
+  font-size: 1.1em;
+  background-color: #d4edda;
+  padding: 0.25em 0.5em;
+  border-radius: 3px;
+  border: 1px solid #c3e6cb;
+}
+
+/* Admin comments display */
+.admin-comments {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+  color: #6c757d;
+}
+
+/* Disabled document upload styling */
+.form-managed-file.form-disabled {
+  opacity: 0.6;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+.form-managed-file.form-disabled .form-file {
+  display: none;
+}
+
+/* Admin completion message styling */
+.messages--status {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* User congratulations message styling */
+.congratulations-message {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border: 2px solid #28a745;
+  color: #155724;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  font-size: 1.2em;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+  animation: celebration 0.6s ease-in-out;
+}
+
+@keyframes celebration {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Document viewing styling */
+.file-size {
+  color: #6c757d;
+  font-size: 0.9em;
+  font-style: italic;
+}
+
+/* Current file display styling */
+.form-item .file-size {
+  font-style: italic;
 }
 
 /* Responsive design */

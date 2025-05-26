@@ -1,3 +1,4 @@
+# Admin configuration menu items
 document_approval.admin_settings:
   title: 'Document Approval Settings'
   description: 'Configure document approval system settings'
@@ -5,16 +6,12 @@ document_approval.admin_settings:
   route_name: document_approval.admin_settings
   weight: 100
 
+# Admin content management menu items
 document_approval.admin_submissions:
   title: 'Document Submissions'
   description: 'Review document submissions'
-  parent: system.admin
+  parent: system.admin_content
   route_name: document_approval.admin_submissions
   weight: 100
 
-document_approval.submit:
-  title: 'Submit Documents'
-  description: 'Submit documents for approval'
-  route_name: document_approval.application
-  menu_name: main
-  weight: 5
+# User menu items (removed from main menu, will be in user account menu only)

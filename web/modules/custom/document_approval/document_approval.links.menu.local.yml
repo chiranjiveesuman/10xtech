@@ -1,3 +1,4 @@
+# User account menu items - only visible to regular users
 document_approval.application:
   title: 'Submit Documents'
   route_name: document_approval.application
@@ -7,3 +8,14 @@ document_approval.application:
     attributes:
       class:
         - document-submission-link
+
+# User status page in account menu
+document_approval.user_status_local:
+  title: 'Application Status'
+  route_name: document_approval.user_status
+  menu_name: account
+  weight: -99
+  options:
+    attributes:
+      class:
+        - application-status-link
