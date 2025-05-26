@@ -6,6 +6,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\document_approval\Service\DocumentApprovalService;
+use Drupal\Core\StringTranslation\ByteSizeMarkup;
 
 /**
  * Form for admin to approve or reject submitted documents.
@@ -116,7 +117,7 @@ class AdminApprovalForm extends FormBase {
           '#title' => $this->t('File Information'),
           '#markup' => $this->t('Filename: @name<br>Size: @size', [
             '@name' => $file->getFilename(),
-            '@size' => \Drupal::service('file.formatter')->formatSize($file->getSize()),
+            '@size' => ByteSizeMarkup::create($file->getSize()),
           ]),
         ];
       }

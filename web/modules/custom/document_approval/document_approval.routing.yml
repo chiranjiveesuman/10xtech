@@ -66,9 +66,4 @@ document_approval.delete_document:
   requirements:
     _user_is_logged_in: 'TRUE'
 
-document_approval.user_redirect:
-  path: '/user/login'
-  defaults:
-    _controller: '\Drupal\document_approval\Controller\DocumentApprovalController::userRedirect'
-  requirements:
-    _user_is_logged_in: 'TRUE'
+

@@ -52,11 +52,11 @@ function document_approval_entity_type_alter(array &$entity_types) {
 function document_approval_user_login($account) {
   // Check if user has permission to submit documents
   if ($account->hasPermission('submit documents')) {
-    // Redirect to application page after login
-    $response = new \Symfony\Component\HttpFoundation\RedirectResponse(
-      \Drupal\Core\Url::fromRoute('document_approval.application')->toString()
-    );
-    $response->send();
+    // Set a destination parameter for redirect after login
+    $request = \Drupal::request();
+    if (!$request->query->has('destination')) {
+      $request->query->set('destination', \Drupal\Core\Url::fromRoute('document_approval.application')->toString());
+    }
   }
 }
 

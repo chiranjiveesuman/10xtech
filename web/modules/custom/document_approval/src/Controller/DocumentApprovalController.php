@@ -5,7 +5,6 @@ namespace Drupal\document_approval\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\document_approval\Service\DocumentApprovalService;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Core\Url;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Drupal\Core\Access\AccessResult;
@@ -137,20 +136,7 @@ class DocumentApprovalController extends ControllerBase {
     return $build;
   }
 
-  /**
-   * Redirects authenticated users to the application page.
-   */
-  public function userRedirect() {
-    $user = $this->currentUser();
 
-    // If user is authenticated, redirect to application page
-    if ($user->isAuthenticated()) {
-      return new RedirectResponse(Url::fromRoute('document_approval.application')->toString());
-    }
-
-    // If not authenticated, redirect to login
-    return new RedirectResponse(Url::fromRoute('user.login')->toString());
-  }
 
   /**
    * Formats the status for display.

@@ -85,6 +85,12 @@ function document_approval_install() {
   } catch (\Exception $e) {
     \Drupal::logger('document_approval')->error('Error installing entity type: @error', ['@error' => $e->getMessage()]);
   }
+
+  // Grant permissions to authenticated users
+  if (\Drupal::moduleHandler()->moduleExists('user')) {
+    user_role_grant_permissions('authenticated', ['submit documents']);
+    \Drupal::logger('document_approval')->info('Granted "submit documents" permission to authenticated users.');
+  }
 }
 
 /**
@@ -121,5 +127,16 @@ function document_approval_update_8001() {
     }
   } catch (\Exception $e) {
     \Drupal::logger('document_approval')->error('Error in update 8001: @error', ['@error' => $e->getMessage()]);
+  }
+}
+
+/**
+ * Grant submit documents permission to authenticated users.
+ */
+function document_approval_update_8002() {
+  // Grant permissions to authenticated users
+  if (\Drupal::moduleHandler()->moduleExists('user')) {
+    user_role_grant_permissions('authenticated', ['submit documents']);
+    \Drupal::logger('document_approval')->info('Granted "submit documents" permission to authenticated users via update hook.');
   }
 }
