@@ -342,6 +342,35 @@ class UserDocumentSubmissionForm extends FormBase {
         $form_state->setRedirect('document_approval.user_status');
         return;
       }
+
+      $changed = FALSE;
+
+      for ($i = 1; $i <= 4; $i++) {
+        $field = "doc{$i}";
+        $status_field = "doc{$i}_status";
+
+        $file_id = $form_state->getValue($field);
+        $new_file_id = $file_id ? reset($file_id) : NULL;
+        $existing_file_id = $submission->get($field)->target_id;
+
+        if ($new_file_id && $new_file_id != $existing_file_id) {
+          $file = File::load($new_file_id);
+          if ($file) {
+            $file->setPermanent();
+            $file->save();
+            $submission->set($field, ['target_id' => $new_file_id]);
+            $submission->set($status_field, 'pending');
+            $changed = TRUE;
+          }
+        }
+      }
+
+      if ($changed) {
+        $submission->save();
+        $this->messenger()->addStatus($this->t('Your documents have been updated and are now pending review.'));
+      } else {
+        $this->messenger()->addWarning($this->t('No changes were made to the documents.'));
+      }
     }
 
     // Debug: Log that we're in submitForm
